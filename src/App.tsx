@@ -1,0 +1,36 @@
+import FormularioHabito from "./components/FormularioHabito"
+import ListaHabitos from "./components/ListaHabitos"
+import FiltroHabitos from "./components/FiltroHabitos"
+import { useHabitos } from "./components/Hooks/useHabitos"
+
+function App() {
+
+    const {state, dispatch, nombre, setNombre, agregarHabito} = useHabitos();
+  
+  return (
+    <>
+      <div className="max-w-2xl mx-auto mt-10 p-5 space-y-8">
+          <h1 className="text-5xl font-black text-center text-slate-800">Control de Hábitos</h1>
+
+          <FormularioHabito
+            nombre={nombre}
+            setNombre={setNombre}
+            agregarHabito={agregarHabito}
+          />
+
+          <ListaHabitos
+            dispatch={dispatch}
+            habitos={state.habitos}
+          />
+
+          <FiltroHabitos
+            dispatch={dispatch}
+            filtroActual={state.filtro}
+          />
+          
+      </div>
+    </>
+  )
+}
+
+export default App
