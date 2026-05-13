@@ -5,19 +5,19 @@ import type { Habito } from "../types";
 
 type ListaHabitosProps = {
     dispatch: Dispatch<HabitosActions>,
-    habitos: Habito[]
+    habitosFiltrados: Habito[]
 }
 
-function ListaHabitos({dispatch, habitos} : ListaHabitosProps){
+function ListaHabitos({dispatch, habitosFiltrados} : ListaHabitosProps){
 
-    if(habitos.length === 0){
+    if(habitosFiltrados.length === 0){
         return <p className="text-gray-500">No hay hábitos registrados.</p>;
     }
 
     return(
 
         <div>
-            {habitos.map(x => (
+            {habitosFiltrados.map(x => (
 
             <div
                 className="bg-white shadow-md rounded-2xl p-5 flex items-center justify-between gap-4" 

@@ -2,10 +2,26 @@ import FormularioHabito from "./components/FormularioHabito"
 import ListaHabitos from "./components/ListaHabitos"
 import FiltroHabitos from "./components/FiltroHabitos"
 import { useHabitos } from "./components/Hooks/useHabitos"
+import { useMemo } from "react"
+import type { Habito } from "./types"
 
 function App() {
 
     const {state, dispatch, nombre, setNombre, agregarHabito} = useHabitos();
+
+    const habitosFiltrados: Habito[] = useMemo(() => {
+      if(state.filtro === "todos")
+        return state.habitos;
+
+      if(state.filtro === "completo")
+        return state.habitos.filter(x => x.completo);
+
+      if(state.filtro === "pendiente")
+        return state.habitos.filter(x => !x.completo);
+
+      return []
+
+    }, [state.habitos, state.filtro]);
   
   return (
     <>
@@ -20,7 +36,7 @@ function App() {
 
           <ListaHabitos
             dispatch={dispatch}
-            habitos={state.habitos}
+            habitosFiltrados={habitosFiltrados}
           />
 
           <FiltroHabitos

@@ -4,8 +4,8 @@ import { habitosReducer, initialState } from "../../reducers/habitosReducer"
 export function useHabitos(){
 
     const estadoInicialConStorage = {
-        ...initialState,
-        habitos: obtenerHabitosStorage()
+            ...initialState,
+            habitos: obtenerHabitosStorage()
         }
 
     const [state, dispatch] = useReducer(habitosReducer, estadoInicialConStorage);
