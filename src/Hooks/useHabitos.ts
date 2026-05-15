@@ -1,5 +1,5 @@
 import { useReducer, useState, useEffect } from "react"
-import { habitosReducer, initialState } from "../../reducers/habitosReducer"
+import { habitosReducer, initialState } from "../reducers/habitosReducer"
 
 export function useHabitos(){
 

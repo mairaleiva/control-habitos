@@ -1,9 +1,10 @@
 import FormularioHabito from "./components/FormularioHabito"
 import ListaHabitos from "./components/ListaHabitos"
 import FiltroHabitos from "./components/FiltroHabitos"
-import { useHabitos } from "./components/Hooks/useHabitos"
+import { useHabitos } from "./Hooks/useHabitos"
 import { useMemo } from "react"
 import type { Habito } from "./types"
+import EstadisticasHabitos from "./components/EstadisticasHabitos"
 
 function App() {
 
@@ -34,14 +35,18 @@ function App() {
             agregarHabito={agregarHabito}
           />
 
-          <ListaHabitos
-            dispatch={dispatch}
-            habitosFiltrados={habitosFiltrados}
-          />
-
           <FiltroHabitos
             dispatch={dispatch}
             filtroActual={state.filtro}
+          />
+
+          <EstadisticasHabitos
+            habitosFiltrados={habitosFiltrados}
+          />
+
+          <ListaHabitos
+            dispatch={dispatch}
+            habitosFiltrados={habitosFiltrados}
           />
           
       </div>
