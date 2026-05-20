@@ -33,6 +33,8 @@ function App() {
             nombre={nombre}
             setNombre={setNombre}
             agregarHabito={agregarHabito}
+            habitoIdActividad={state.habitoIdActividad}
+            dispatch={dispatch}
           />
 
           <FiltroHabitos

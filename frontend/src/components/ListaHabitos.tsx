@@ -33,6 +33,13 @@ function ListaHabitos({dispatch, habitosFiltrados} : ListaHabitosProps){
                 Eliminar
                 </button>
 
+                <button 
+                className="bg-red-100 text-green-600 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition"
+                onClick={() => dispatch({type: 'editar', payload: {id: x.id}})} 
+                >
+                Editar
+                </button>
+
                 <button
                 className={x.completo 
                             ? "bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold hover:bg-green-200 transition"
