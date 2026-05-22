@@ -45,18 +45,16 @@ export function useHabitos(){
         if(nombre.trim() === '')
             return
 
-        const nuevoHabito =  {  id: state.habitoIdActividad !== null ? state.habitoIdActividad : Date.now(),
-                                nombre: nombre,
-                                completo: false
-                            }
-
         if(state.habitoIdActividad !== null){
             const resp = await fetch(`http://localhost:5150/api/habitos/${state.habitoIdActividad}`, {
                 method: 'PUT',
                 headers: {
                             'Content-Type': 'application/json'
                         },
-                body: JSON.stringify(nuevoHabito)
+                body: JSON.stringify({  id: state.habitoIdActividad,
+                                nombre: nombre,
+                                completo: true
+                            })
             })
 
             const dataPUT = await resp.json();
@@ -74,7 +72,10 @@ export function useHabitos(){
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(nuevoHabito)
+                        body: JSON.stringify({  
+                                nombre: nombre,
+                                completo: false
+                            })
                     })
 
             const data = await response.json();

@@ -14,6 +14,37 @@ function ListaHabitos({dispatch, habitosFiltrados} : ListaHabitosProps){
         return <p className="text-gray-500">No hay hábitos registrados.</p>;
     }
 
+    const EliminarHabito = async (id) => {
+
+        const resp = await fetch(`http://localhost:5150/api/habitos/${id}`, {
+            method: 'DELETE'
+        })
+
+        if(resp.ok){
+            dispatch({type: 'eliminar',
+                    payload: {id: id}
+                    });
+        }
+    }
+
+    const ToggleHabito = async (habito : Habito) => {
+
+        const resp = await fetch(`http://localhost:5150/api/habitos/${habito.id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                id: habito.id,
+                nombre: habito.nombre,
+                completo: !habito.completo
+            })
+
+        })
+
+        if(resp.ok){
+            dispatch({type: 'toggle', payload: {id: habito.id}})
+        }
+    }
+
     return(
 
         <div>
@@ -28,14 +59,14 @@ function ListaHabitos({dispatch, habitosFiltrados} : ListaHabitosProps){
                 >{x.nombre}</span>
                 <button 
                 className="bg-red-100 text-red-600 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition"
-                onClick={() => dispatch({type: 'eliminar', payload: {id: x.id}})} 
+                onClick={() => EliminarHabito(x.id)} 
                 >
                 Eliminar
                 </button>
 
                 <button 
                 className="bg-red-100 text-green-600 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition"
-                onClick={() => dispatch({type: 'editar', payload: {id: x.id}})} 
+                onClick={() => dispatch({type: 'editar', payload: {id: x.id}})}
                 >
                 Editar
                 </button>
@@ -45,7 +76,7 @@ function ListaHabitos({dispatch, habitosFiltrados} : ListaHabitosProps){
                             ? "bg-green-100 text-green-700 px-3 py-2 rounded-lg font-bold hover:bg-green-200 transition"
                             : "bg-yellow-100 text-yellow-700 px-3 py-2 rounded-lg font-bold hover:bg-yellow-200 transition"
                         }
-                onClick={() => dispatch({type: 'toggle', payload: {id: x.id}})}
+                onClick={() => ToggleHabito(x)}
                 >
                 {x.completo ? 'Completo' : 'Pendiente'}
                 </button>
