@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ControlHabitos.Models;
 using ControlHabitos.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ControlHabitos.Api.Controllers
 {
@@ -16,27 +17,27 @@ namespace ControlHabitos.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Habito>> Habitos()
+        public async Task<ActionResult<List<Habito>>> Habitos()
         {
-            var habitos = _context.Habitos.ToList();
+            var habitos = await _context.Habitos.ToListAsync();
 
             return Ok(habitos);
         }
 
         [HttpPost]
-        public ActionResult<Habito> nuevoHabito ([FromBody] Habito habito)
+        public async Task<ActionResult<Habito>> nuevoHabito ([FromBody] Habito habito)
         {
-            _context.Add(habito);
+            await _context.AddAsync(habito);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(habito);
         }
 
         [HttpPut("{Id}")]
-        public ActionResult<Habito> Actualizar ([FromBody] Habito habito, long Id)
+        public async Task<ActionResult<Habito>> Actualizar ([FromBody] Habito habito, long Id)
         {
-            var habitoExistente = _context.Habitos.FirstOrDefault(x => x.Id == Id);
+            var habitoExistente = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == Id);
 
             if(habitoExistente is null)
                 return NotFound("El hábito que quiere Editar no existe.");
@@ -45,22 +46,22 @@ namespace ControlHabitos.Api.Controllers
             habitoExistente.Nombre = habito.Nombre;
             habitoExistente.Completo = habito.Completo;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             
             return Ok(habitoExistente);
         }
 
         [HttpDelete("{Id}")]
-        public ActionResult Eliminar (long Id)
+        public async Task<ActionResult> Eliminar (long Id)
         {
-            var habitoExistente = _context.Habitos.FirstOrDefault(x => x.Id == Id);
+            var habitoExistente = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == Id);
 
             if(habitoExistente is null)
                 return NotFound("El hábito que quiere Eliminar no existe.");
 
             _context.Habitos.Remove(habitoExistente);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok();
         }
