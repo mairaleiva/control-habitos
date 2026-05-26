@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ControlHabitos.Models;
-using ControlHabitos.Data;
-using Microsoft.EntityFrameworkCore;
+using ControlHabitos.Api.Services;
 
 namespace ControlHabitos.Api.Controllers
 {
@@ -9,17 +8,17 @@ namespace ControlHabitos.Api.Controllers
     [Route("api/[controller]")]
     public class HabitosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly HabitosService _habitosService;
 
-        public HabitosController(AppDbContext context)
+        public HabitosController(HabitosService habitosService)
         {
-            this._context = context;
+            this._habitosService = habitosService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Habito>>> Habitos()
         {
-            var habitos = await _context.Habitos.ToListAsync();
+            var habitos = await _habitosService.ObtenerHabitos();
 
             return Ok(habitos);
         }
@@ -27,9 +26,7 @@ namespace ControlHabitos.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Habito>> nuevoHabito ([FromBody] Habito habito)
         {
-            await _context.AddAsync(habito);
-
-            await _context.SaveChangesAsync();
+            await _habitosService.CrearHabitos(habito);
 
             return Ok(habito);
         }
@@ -37,32 +34,22 @@ namespace ControlHabitos.Api.Controllers
         [HttpPut("{Id}")]
         public async Task<ActionResult<Habito>> Actualizar ([FromBody] Habito habito, long Id)
         {
-            var habitoExistente = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == Id);
+            var habitoExistente = await _habitosService.ActualizarHabito(habito, Id);
 
             if(habitoExistente is null)
-                return NotFound("El hábito que quiere Editar no existe.");
+                return NotFound("No se encontró el habito que quiere actualizar");
 
-            //Actualizo
-            habitoExistente.Nombre = habito.Nombre;
-            habitoExistente.Completo = habito.Completo;
-
-            await _context.SaveChangesAsync();
-            
             return Ok(habitoExistente);
         }
 
         [HttpDelete("{Id}")]
         public async Task<ActionResult> Eliminar (long Id)
         {
-            var habitoExistente = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == Id);
+            var habitoExistente = await _habitosService.EliminarHabito(Id);
 
-            if(habitoExistente is null)
-                return NotFound("El hábito que quiere Eliminar no existe.");
-
-            _context.Habitos.Remove(habitoExistente);
-
-            await _context.SaveChangesAsync();
-
+            if(habitoExistente)
+                return NotFound("No se encontró el habito que quiere eliminar");
+                
             return Ok();
         }
 
