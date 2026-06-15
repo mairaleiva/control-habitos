@@ -20,6 +20,13 @@ namespace  ControlHabitos.Api.Services
             return habitos;
         }
 
+        public async Task<Habito?> ObtenerHabitoPorId(long Id)
+        {
+            var habito = await this._context.Habitos.SingleOrDefaultAsync(x => x.Id == Id);
+
+            return habito;
+        }
+
         public async Task<Habito> CrearHabitos(Habito habito)
         {
             await _context.Habitos.AddAsync(habito);

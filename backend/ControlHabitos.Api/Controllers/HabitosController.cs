@@ -21,9 +21,22 @@ namespace ControlHabitos.Api.Controllers
         {
             var habitos = await _habitosService.ObtenerHabitos();
 
-            var habitosResponse = habitos.Select(x => MapearJabitoResponse(x));
+            var habitosResponse = habitos.Select(x => MapearHabitoResponse(x));
 
             return Ok(habitosResponse);
+        }
+
+        [HttpGet("{Id}")]
+        public async Task<ActionResult<HabitoResponseDto>> Habitos(long Id)
+        {
+            var habito = await _habitosService.ObtenerHabitoPorId(Id);
+            
+            if(habito is null)
+                return NotFound("No existe el hábito que intenta consultar.");
+                
+            var habitoResponse = MapearHabitoResponse(habito);
+
+            return habitoResponse;
         }
 
         [HttpPost]
@@ -37,20 +50,30 @@ namespace ControlHabitos.Api.Controllers
 
             await _habitosService.CrearHabitos(habito);
 
-            var habitoResponse = MapearJabitoResponse(habito);
+            var habitoResponse = MapearHabitoResponse(habito);
             
-            return Ok(habitoResponse);
+            return CreatedAtAction(
+                    nameof(Habitos),          
+                    new { id = habito.Id },      
+                    habitoResponse               
+            );
         }
 
         [HttpPut("{Id}")]
-        public async Task<ActionResult<HabitoResponseDto>> Actualizar ([FromBody] Habito habito, long Id)
+        public async Task<ActionResult<HabitoResponseDto>> Actualizar ([FromBody] ActualizarHabitoDto habitoDto, long Id)
         {
-            var habitoExistente = await _habitosService.ActualizarHabito(habito, Id);
+            var habitoMapeado = new Habito
+            {
+                Nombre = habitoDto.Nombre,
+                Completo = habitoDto.Completo
+            };
+
+            var habitoExistente = await _habitosService.ActualizarHabito(habitoMapeado, Id);
 
             if(habitoExistente is null)
                 return NotFound("No se encontró el habito que quiere actualizar");
 
-            var habitoResponse = MapearJabitoResponse(habitoExistente);
+            var habitoResponse = MapearHabitoResponse(habitoExistente);
 
             return Ok(habitoResponse);
         }
@@ -66,7 +89,7 @@ namespace ControlHabitos.Api.Controllers
             return Ok();
         }
 
-        private HabitoResponseDto MapearJabitoResponse(Habito habito)
+        private HabitoResponseDto MapearHabitoResponse(Habito habito)
         {
             return new HabitoResponseDto
                         {

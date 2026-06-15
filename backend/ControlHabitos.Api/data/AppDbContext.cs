@@ -12,5 +12,6 @@ namespace ControlHabitos.Data
         }
 
         public DbSet<Habito> Habitos {get; set;}
+        public DbSet<Usuario> Usuarios {get; set;}
     }
 }

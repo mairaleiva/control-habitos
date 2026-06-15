@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using ControlHabitos.Data;
 using ControlHabitos.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddScoped<HabitosService>();
+builder.Services.AddScoped<AuthService>();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -29,6 +33,31 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                                        {
+                                            options.Events = new JwtBearerEvents
+                                            {
+                                                OnMessageReceived = context =>
+                                                {
+                                                    context.Token = context.Request.Cookies["auth"];
+                                                    return Task.CompletedTask;
+                                                }
+                                            };
+
+                                            options.TokenValidationParameters = new TokenValidationParameters
+                                                {
+                                                    ValidateIssuerSigningKey = true,
+                                                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)),
+                                                    ValidateIssuer = false,
+                                                    ValidateAudience = false,
+                                                    ValidateLifetime = true
+                                                };
+                                        }
+                            );
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -60,6 +89,8 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast");
 
 app.UseCors("FrontendPolicy");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.UseSwagger();
