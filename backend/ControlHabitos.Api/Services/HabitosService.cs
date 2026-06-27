@@ -13,16 +13,16 @@ namespace  ControlHabitos.Api.Services
             this._context = dbContext;
         }
 
-        public async Task<List<Habito>> ObtenerHabitos()
+        public async Task<List<Habito>> ObtenerHabitos(long IdUsuario)
         {
-            var habitos = await this._context.Habitos.ToListAsync();
+            var habitos = await this._context.Habitos.Where(x => x.IdUsuario == IdUsuario).ToListAsync();
 
             return habitos;
         }
 
-        public async Task<Habito?> ObtenerHabitoPorId(long Id)
+        public async Task<Habito?> ObtenerHabitoPorId(long Id, long IdUsuario)
         {
-            var habito = await this._context.Habitos.SingleOrDefaultAsync(x => x.Id == Id);
+            var habito = await this._context.Habitos.SingleOrDefaultAsync(x => x.Id == Id && x.IdUsuario == IdUsuario);
 
             return habito;
         }
@@ -35,9 +35,9 @@ namespace  ControlHabitos.Api.Services
             return habito;
         }
 
-        public async Task<Habito?> ActualizarHabito(Habito habito, long IdHabito)
+        public async Task<Habito?> ActualizarHabito(Habito habito, long IdHabito, long IdUsuario)
         {
-            var habitoEncontrado = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == IdHabito);
+            var habitoEncontrado = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == IdHabito && x.IdUsuario == IdUsuario);
 
             if(habitoEncontrado is null)
                 return null;
@@ -50,9 +50,9 @@ namespace  ControlHabitos.Api.Services
             return habitoEncontrado;
         }
 
-        public async Task<bool> EliminarHabito(long IdHabito)
+        public async Task<bool> EliminarHabito(long IdHabito, long IdUsuario)
         {
-            var habitoEncontrado = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == IdHabito);
+            var habitoEncontrado = await _context.Habitos.FirstOrDefaultAsync(x => x.Id == IdHabito && x.IdUsuario == IdUsuario);
 
             if(habitoEncontrado is null)
                 return false;

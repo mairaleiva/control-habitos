@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using ControlHabitos.Models;
 using ControlHabitos.Api.Services;
 using ControlHabitos.Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ControlHabitos.Api.Controllers
 {
@@ -17,9 +19,15 @@ namespace ControlHabitos.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<HabitoResponseDto>>> Habitos()
         {
-            var habitos = await _habitosService.ObtenerHabitos();
+            var idUsuarioClaim = ObtenerUsuarioId();
+
+            if(idUsuarioClaim is null)
+                return Unauthorized("No se pudo identificar al usuario autenticado.");
+
+            var habitos = await _habitosService.ObtenerHabitos(idUsuarioClaim.Value);
 
             var habitosResponse = habitos.Select(x => MapearHabitoResponse(x));
 
@@ -27,9 +35,15 @@ namespace ControlHabitos.Api.Controllers
         }
 
         [HttpGet("{Id}")]
+        [Authorize]
         public async Task<ActionResult<HabitoResponseDto>> Habitos(long Id)
         {
-            var habito = await _habitosService.ObtenerHabitoPorId(Id);
+            var idUsuarioClaim = ObtenerUsuarioId();
+
+            if(idUsuarioClaim is null)
+                return Unauthorized("No se pudo identificar al usuario autenticado.");
+
+            var habito = await _habitosService.ObtenerHabitoPorId(Id, idUsuarioClaim.Value);
             
             if(habito is null)
                 return NotFound("No existe el hábito que intenta consultar.");
@@ -40,13 +54,20 @@ namespace ControlHabitos.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<HabitoResponseDto>> nuevoHabito ([FromBody] CrearHabitoDto habitoDto)
         {
+            var idUsuarioClaim = ObtenerUsuarioId();
+
+            if(idUsuarioClaim is null)
+                return Unauthorized("No se pudo identificar al usuario autenticado.");
+
             var habito = new Habito
-            {
-                Nombre = habitoDto.Nombre,
-                Completo = habitoDto.Completo
-            };
+                {
+                    Nombre = habitoDto.Nombre,
+                    Completo = habitoDto.Completo,
+                    IdUsuario = idUsuarioClaim.Value
+                };
 
             await _habitosService.CrearHabitos(habito);
 
@@ -60,6 +81,7 @@ namespace ControlHabitos.Api.Controllers
         }
 
         [HttpPut("{Id}")]
+        [Authorize]
         public async Task<ActionResult<HabitoResponseDto>> Actualizar ([FromBody] ActualizarHabitoDto habitoDto, long Id)
         {
             var habitoMapeado = new Habito
@@ -68,7 +90,12 @@ namespace ControlHabitos.Api.Controllers
                 Completo = habitoDto.Completo
             };
 
-            var habitoExistente = await _habitosService.ActualizarHabito(habitoMapeado, Id);
+            var idUsuarioClaim = ObtenerUsuarioId();
+
+            if(idUsuarioClaim is null)
+                return Unauthorized("No se pudo identificar al usuario autenticado.");
+
+            var habitoExistente = await _habitosService.ActualizarHabito(habitoMapeado, Id, idUsuarioClaim.Value);
 
             if(habitoExistente is null)
                 return NotFound("No se encontró el habito que quiere actualizar");
@@ -79,9 +106,15 @@ namespace ControlHabitos.Api.Controllers
         }
 
         [HttpDelete("{Id}")]
+        [Authorize]
         public async Task<ActionResult> Eliminar (long Id)
         {
-            var habitoExistente = await _habitosService.EliminarHabito(Id);
+            var idUsuarioClaim = ObtenerUsuarioId();
+
+            if(idUsuarioClaim is null)
+                return Unauthorized("No se pudo identificar al usuario autenticado.");
+
+            var habitoExistente = await _habitosService.EliminarHabito(Id, idUsuarioClaim.Value);
 
             if(!habitoExistente)
                 return NotFound("No se encontró el habito que quiere eliminar");
@@ -99,5 +132,9 @@ namespace ControlHabitos.Api.Controllers
                         };
         }
 
+        private long? ObtenerUsuarioId()
+        {
+            return Convert.ToInt64(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        }
     }
 }
