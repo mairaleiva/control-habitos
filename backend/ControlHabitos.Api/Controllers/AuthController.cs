@@ -80,5 +80,14 @@ namespace ControlHabitos.Api.Controllers
         {
             return Ok("Autenticado");
         }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("auth");
+
+            return Ok();
+        }
     }
 }
